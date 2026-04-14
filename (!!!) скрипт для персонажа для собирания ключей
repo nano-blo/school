@@ -1,0 +1,41 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ВАШЕ_НАЗВАНИЕ : MonoBehaviour
+{
+    [Header("Настройки ключей")]
+    public int totalKeys = 3;
+    private int keysCollected = 0;
+
+    [Header("Ссылки на UI")]
+    public Text keyCounterText;
+    public Image keyIconImage;
+
+
+    void Start()
+    {
+        UpdateKeyCounterUI();
+        
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Key"))
+        {
+            Destroy(other.gameObject);
+            keysCollected++;
+            UpdateKeyCounterUI();
+
+        }
+        
+    }
+
+    void UpdateKeyCounterUI()
+    {
+        if (keyCounterText != null)
+        {
+            keyCounterText.text = keysCollected + "/" + totalKeys;
+        }
+    }
+
+}

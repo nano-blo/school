@@ -1,0 +1,50 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ВАШЕ_НАЗВАНИЕ : MonoBehaviour
+{
+    public static ВАШЕ_НАЗВАНИЕ instance;
+
+    public int keysCollected = 0;
+    public int keysRequired = 3;
+    public Text keysText;
+    public GameObject exitPortal;
+
+    void Awake()
+    {
+        if (instance == null)
+            instance = this;
+    }
+
+    void Start()
+    {
+        UpdateUI();
+
+        if (exitPortal != null)
+            exitPortal.SetActive(false);
+    }
+
+    public void CollectKey()
+    {
+        keysCollected++;
+        UpdateUI();
+
+        if (keysCollected >= keysRequired && exitPortal != null)
+        {
+            exitPortal.SetActive(true);
+            Debug.Log("Портал открылся!");
+        }
+    }
+
+    void UpdateUI()
+    {
+        if (keysText != null)
+            keysText.text = $"{keysCollected}/{keysRequired}";
+    }
+
+    public void WinGame()
+    {
+        Debug.Log("Победа! Вы сбежали!");
+        Time.timeScale = 0;
+    }
+}

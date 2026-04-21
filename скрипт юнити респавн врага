@@ -1,0 +1,88 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class EnemyRespawner : MonoBehaviour
+{
+    [Header("Настройки респавна")]
+    public GameObject enemyPrefab;
+    public float respawnDelay = 3f;
+    public Transform[] spawnPoints;
+
+    private List<Vector3> usedSpawnPoints = new List<Vector3>();
+
+    void Start()
+    {
+        if (spawnPoints.Length == 0)
+        {
+            GameObject[] points = GameObject.FindGameObjectsWithTag("SpawnPoint");
+            spawnPoints = new Transform[points.Length];
+            for (int i = 0; i < points.Length; i++)
+            {
+                spawnPoints[i] = points[i].transform;
+            }
+        }
+
+        if (spawnPoints.Length == 0)
+        {
+            Debug.LogWarning("No spawn points found, using spawner position");
+            spawnPoints = new Transform[1];
+            spawnPoints[0] = transform;
+        }
+
+        SpawnEnemy();
+    }
+
+    public void EnemyDied(GameObject deadEnemy)
+    {
+        StartCoroutine(RespawnCoroutine());
+    }
+
+    IEnumerator RespawnCoroutine()
+    {
+        yield return new WaitForSeconds(respawnDelay);
+        SpawnEnemy();
+    }
+
+    void SpawnEnemy()
+    {
+        if (enemyPrefab == null)
+        {
+            Debug.LogError("Enemy prefab is not assigned to EnemyRespawner!");
+            return;
+        }
+
+        Transform spawnPoint = GetRandomSpawnPoint();
+
+        GameObject newEnemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
+
+        if (newEnemy.GetComponent<EnemyHealth>() == null)
+        {
+            newEnemy.AddComponent<EnemyHealth>();
+        }
+
+        Debug.Log($"Enemy spawned at {spawnPoint.position}");
+    }
+
+    Transform GetRandomSpawnPoint()
+    {
+        if (spawnPoints.Length == 0) return transform;
+
+        return spawnPoints[Random.Range(0, spawnPoints.Length)];
+    }
+
+    void OnDrawGizmos()
+    {
+        if (spawnPoints != null)
+        {
+            Gizmos.color = Color.green;
+            foreach (Transform point in spawnPoints)
+            {
+                if (point != null)
+                {
+                    Gizmos.DrawWireSphere(point.position, 0.5f);
+                }
+            }
+        }
+    }
+}

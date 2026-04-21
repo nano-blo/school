@@ -1,0 +1,54 @@
+using UnityEngine;
+
+public class EnemyHealth : MonoBehaviour
+{
+    public int maxHealth = 1;
+    private int currentHealth;
+
+    public GameObject deathEffect;
+    public AudioClip deathSound;
+
+    private AudioSource audioSource;
+
+    void Start()
+    {
+        currentHealth = maxHealth;
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null && deathSound != null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        if (deathEffect != null)
+        {
+            GameObject effect = Instantiate(deathEffect, transform.position, Quaternion.identity);
+            Destroy(effect, 2f);
+        }
+
+        if (deathSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(deathSound);
+        }
+
+        EnemyRespawner respawner = FindObjectOfType<EnemyRespawner>();
+        if (respawner != null)
+        {
+            respawner.EnemyDied(gameObject);
+        }
+
+        Destroy(gameObject);
+    }
+}
